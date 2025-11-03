@@ -35,34 +35,63 @@ def generar_historias(culpable, arma, lugar):
         f"Historia 5: Tras una investigación, se descubre que el {culpable} planeó todo en la {lugar} con el {arma}."
     ]
 
-# ----- Selección aleatoria del caso -----
-culpable = random.choice(personajes)
-arma = random.choice(armas)
-lugar = random.choice(locaciones)
-historias = generar_historias(culpable, arma, lugar)
+# ----- Función para jugar un caso con pistas progresivas -----
+def jugar_caso():
+    culpable = random.choice(personajes)
+    arma = random.choice(armas)
+    lugar = random.choice(locaciones)
+    historias = generar_historias(culpable, arma, lugar)
 
-# ----- Interfaz de consola -----
-print("===== SIMULADOR CLUE (CONSOLA) =====")
-print("\nHistorias posibles:")
-for h in historias:
-    print("- " + h)
+    print("\n===== NUEVO CASO =====")
+    print("Intenta descubrir el culpable, el arma y el lugar del crimen.")
+    print("Personajes:", ", ".join(personajes))
+    print("Armas:", ", ".join(armas))
+    print("Locaciones:", ", ".join(locaciones))
 
-print("\nIntenta adivinar el caso:")
-print("Personajes:", ", ".join(personajes))
-print("Armas:", ", ".join(armas))
-print("Locaciones:", ", ".join(locaciones))
+    puntos = 0
+    acertado = False
 
-input_culpable = input("¿Quién es el culpable? ")
-input_arma = input("¿Qué arma se usó? ")
-input_lugar = input("¿Dónde ocurrió el crimen? ")
+    for i, historia in enumerate(historias):
+        print(f"\nPista {i+1}: {historia}")
+        puntos += 1  # cada pista consumida resta puntos
 
-# ----- Verificación -----
-if (input_culpable.strip().lower() == culpable.lower() and
-    input_arma.strip().lower() == arma.lower() and
-    input_lugar.strip().lower() == lugar.lower()):
-    print("\n¡Felicidades! Has adivinado correctamente el caso.")
-else:
-    print("\nNo es correcto. La solución era:")
-    print(f"Culpable: {culpable}")
-    print(f"Arma: {arma}")
-    print(f"Lugar: {lugar}")
+        input_culpable = input("¿Quién crees que es el culpable? (deja vacío para no adivinar): ").strip()
+        input_arma = input("¿Qué arma se usó? (deja vacío para no adivinar): ").strip()
+        input_lugar = input("¿Dónde ocurrió el crimen? (deja vacío para no adivinar): ").strip()
+
+        if (input_culpable.lower() == culpable.lower() and
+            input_arma.lower() == arma.lower() and
+            input_lugar.lower() == lugar.lower()):
+            print("\n¡Correcto! Has resuelto el caso antes de que se mostraran todas las pistas.")
+            puntos = max(5 - i, 1)  # más puntos si adivinas antes
+            acertado = True
+            break
+        else:
+            print("No es correcto. Puedes intentar de nuevo después de la siguiente pista.")
+
+    if not acertado:
+        print("\nSe han mostrado todas las pistas.")
+        print(f"La solución era: Culpable: {culpable}, Arma: {arma}, Lugar: {lugar}")
+        puntos = 1  # mínimo de puntos si no adivinas
+
+    print(f"Puntos obtenidos en este caso: {puntos}")
+    return puntos
+
+# ----- Programa principal -----
+def main():
+    print("===== SIMULADOR CLUE EN CONSOLA CON PISTAS PROGRESIVAS =====")
+    total_puntos = 0
+    rondas = 0
+
+    while True:
+        jugar = input("\n¿Quieres jugar un nuevo caso? (s/n): ").strip().lower()
+        if jugar != "s":
+            break
+        rondas += 1
+        total_puntos += jugar_caso()
+
+    print(f"\nJuego terminado. Jugaste {rondas} rondas y acumulaste {total_puntos} puntos.")
+    print("¡Gracias por jugar!")
+
+if __name__ == "__main__":
+    main()
